@@ -1,107 +1,137 @@
-import * as THREE from 'three';
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import GUI from 'lil-gui'
 
-const canvas = document.querySelector('#bg');
-const renderer = new THREE.WebGLRenderer({canvas, antialias: true});
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+/**
+ * Base
+ */
+// Debug
+const gui = new GUI()
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87ceeb); // سماوي
+// Canvas
+const canvas = document.querySelector('canvas.webgl')
 
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(5, 3, 8);
+// Scene
+const scene = new THREE.Scene()
 
-// محاور
-scene.add(new THREE.AxesHelper(5));
+/**
+ * Lights
+ */
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.5)
+scene.add(ambientLight)
 
-// أضواء مختلفة
-const ambient = new THREE.AmbientLight(0xffffff, 0.5);
-scene.add(ambient);
+const pointLight = new THREE.PointLight(0xffffff, 50)
+pointLight.position.x = 2
+pointLight.position.y = 3
+pointLight.position.z = 4
+scene.add(pointLight)
 
-const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-dirLight.position.set(5, 10, 7);
-scene.add(dirLight);
+/**
+ * Objects
+ */
+// Material
+const material = new THREE.MeshStandardMaterial()
+material.roughness = 0.4
 
-const pointLight = new THREE.PointLight(0xffaa88, 0.6);
-pointLight.position.set(-5, 3, -2);
-scene.add(pointLight);
+// Objects
+const sphere = new THREE.Mesh(
+    new THREE.SphereGeometry(0.5, 32, 32),
+    material
+)
+sphere.position.x = - 1.5
 
-// أرضية (Plane) — مادة تتأثر بالضوء
-const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(50, 50),
-  new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 1, metalness: 0})
-);
-ground.rotation.x = -Math.PI / 2;
-ground.position.y = -1.5;
-scene.add(ground);
+const cube = new THREE.Mesh(
+    new THREE.BoxGeometry(0.75, 0.75, 0.75),
+    material
+)
 
-// رجل الثلج: 3 كرات (Sphere) — مادة Standard (تتأثر بالضوء)
-const bodyMat = new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.8});
-const head = new THREE.Mesh(new THREE.SphereGeometry(0.75, 32, 32), bodyMat);
-const torso = new THREE.Mesh(new THREE.SphereGeometry(1.1, 32, 32), bodyMat);
-const base = new THREE.Mesh(new THREE.SphereGeometry(1.5, 32, 32), bodyMat);
-head.position.y = 1.5;
-torso.position.y = 0;
-base.position.y = -1.2;
-scene.add(head, torso, base);
+const torus = new THREE.Mesh(
+    new THREE.TorusGeometry(0.3, 0.2, 32, 64),
+    material
+)
+torus.position.x = 1.5
 
-// عيون (Sphere صغيرة)
-const eyeMat = new THREE.MeshStandardMaterial({color: 0x222222});
-const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), eyeMat);
-const eyeR = eyeL.clone();
-eyeL.position.set(-0.2, 1.65, 0.7);
-eyeR.position.set(0.2, 1.65, 0.7);
-scene.add(eyeL, eyeR);
+const plane = new THREE.Mesh(
+    new THREE.PlaneGeometry(5, 5),
+    material
+)
+plane.rotation.x = - Math.PI * 0.5
+plane.position.y = - 0.65
 
-// أنف (Cone)
-const nose = new THREE.Mesh(
-  new THREE.ConeGeometry(0.1, 0.5, 16),
-  new THREE.MeshStandardMaterial({color: 0xff7f50})
-);
-nose.rotation.x = Math.PI / 2;
-nose.position.set(0, 1.55, 0.85);
-scene.add(nose);
+scene.add(sphere, cube, torus, plane)
 
-// قبعة (Cylinder + brim)
-const brim = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.6, 0.6, 0.05, 32),
-  new THREE.MeshStandardMaterial({color: 0x222222})
-);
-brim.position.y = 2.05;
-
-const hat = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.45, 0.45, 0.6, 32),
-  new THREE.MeshStandardMaterial({color: 0x222222})
-);
-hat.position.y = 2.4;
-scene.add(brim, hat);
-
-// هدية (Box) — شكل ثالث مختلف
-const gift = new THREE.Mesh(
-  new THREE.BoxGeometry(0.8, 0.6, 0.8),
-  new THREE.MeshStandardMaterial({color: 0x8a2be2, roughness: 0.6})
-);
-gift.position.set(-2, -1.2 + 0.3, 1);
-scene.add(gift);
-
-// Orbit Controls
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 0.5, 0);
-controls.enableDamping = true;
-
-// ريسايز
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// لوب الرسم
-function animate() {
-  requestAnimationFrame(animate);
-  gift.rotation.y += 0.01; // حركة بسيطة
-  controls.update();
-  renderer.render(scene, camera);
+/**
+ * Sizes
+ */
+const sizes = {
+    width: window.innerWidth,
+    height: window.innerHeight
 }
-animate();
+
+window.addEventListener('resize', () =>
+{
+    // Update sizes
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
+
+    // Update camera
+    camera.aspect = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
+
+    // Update renderer
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+})
+
+/**
+ * Camera
+ */
+// Base camera
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+camera.position.x = 1
+camera.position.y = 1
+camera.position.z = 2
+scene.add(camera)
+
+// Controls
+const controls = new OrbitControls(camera, canvas)
+controls.enableDamping = true
+
+/**
+ * Renderer
+ */
+const renderer = new THREE.WebGLRenderer({
+    canvas: canvas
+})
+renderer.setSize(sizes.width, sizes.height)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+/**
+ * Animate
+ */
+const clock = new THREE.Clock()
+
+const tick = () =>
+{
+    const elapsedTime = clock.getElapsedTime()
+
+    // Update objects
+    sphere.rotation.y = 0.1 * elapsedTime
+    cube.rotation.y = 0.1 * elapsedTime
+    torus.rotation.y = 0.1 * elapsedTime
+
+    sphere.rotation.x = 0.15 * elapsedTime
+    cube.rotation.x = 0.15 * elapsedTime
+    torus.rotation.x = 0.15 * elapsedTime
+
+    // Update controls
+    controls.update()
+
+    // Render
+    renderer.render(scene, camera)
+
+    // Call tick again on the next frame
+    window.requestAnimationFrame(tick)
+}
+
+tick()

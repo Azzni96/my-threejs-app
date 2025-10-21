@@ -2,7 +2,8 @@
       // here you can change all root/build destinations. NOTE the base needed!
       root: '',
       build: {
-        outDir: '../dist',
+        outDir: 'dist',
+        assetsDir: 'assets',
       },
       base: './',
     };
