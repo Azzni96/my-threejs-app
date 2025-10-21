@@ -29,36 +29,51 @@ scene.add(pointLight)
 /**
  * Objects
  */
-// Material
-const material = new THREE.MeshStandardMaterial()
-material.roughness = 0.4
+// Materials (each shape gets مادَّة خاصة به لتغيير اللون منفردًا)
+const sphereMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, roughness: 0.4 })
+const cubeMaterial   = new THREE.MeshStandardMaterial({ color: 0x00ff00, roughness: 0.4 })
+const torusMaterial  = new THREE.MeshStandardMaterial({ color: 0x0000ff, roughness: 0.4 })
+const planeMaterial  = new THREE.MeshStandardMaterial({ color: 0x777777, roughness: 0.4 })
 
 // Objects
 const sphere = new THREE.Mesh(
     new THREE.SphereGeometry(0.5, 32, 32),
-    material
+    sphereMaterial
 )
 sphere.position.x = - 1.5
 
 const cube = new THREE.Mesh(
     new THREE.BoxGeometry(0.75, 0.75, 0.75),
-    material
+    cubeMaterial
 )
 
 const torus = new THREE.Mesh(
     new THREE.TorusGeometry(0.3, 0.2, 32, 64),
-    material
+    torusMaterial
 )
 torus.position.x = 1.5
 
 const plane = new THREE.Mesh(
     new THREE.PlaneGeometry(5, 5),
-    material
+    planeMaterial
 )
 plane.rotation.x = - Math.PI * 0.5
 plane.position.y = - 0.65
 
 scene.add(sphere, cube, torus, plane)
+
+// GUI color controls
+const colorParams = {
+  sphereColor: '#ff0000',
+  cubeColor:   '#00ff00',
+  torusColor:  '#0000ff',
+  planeColor:  '#777777'
+}
+
+gui.addColor(colorParams, 'sphereColor').name('Sphere Color').onChange(v => sphere.material.color.set(v))
+gui.addColor(colorParams, 'cubeColor').name('Cube Color').onChange(v => cube.material.color.set(v))
+gui.addColor(colorParams, 'torusColor').name('Torus Color').onChange(v => torus.material.color.set(v))
+gui.addColor(colorParams, 'planeColor').name('Plane Color').onChange(v => plane.material.color.set(v))
 
 /**
  * Sizes
